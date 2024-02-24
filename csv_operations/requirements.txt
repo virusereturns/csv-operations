@@ -1,0 +1,5 @@
+django==4.2
+django-extensions
+django-browser-reload
+pandas
+faker
