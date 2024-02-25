@@ -5,3 +5,4 @@ pandas
 faker
 celery
 django-redis
+openpyxl
