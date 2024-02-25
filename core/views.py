@@ -1,6 +1,7 @@
 import csv
 from time import perf_counter
 
+from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.generic import TemplateView
@@ -10,6 +11,10 @@ import pandas as pd
 from faker import Faker
 
 from .models import Person
+from .utils import generate_people_list, people_generator
+from core import tasks
+
+from icecream import ic
 
 
 class HomePageView(TemplateView):
@@ -30,16 +35,13 @@ class GenerateRandomPeopleCsv(TemplateView):
         amount = int(request.POST.get('amount', 10))
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = f'attachment; filename={amount}_people.csv'
-
-        fake = Faker()
         writer = csv.writer(response)
         writer.writerow(['name', 'age', 'email', 'phone'])
-
-        for _ in range(amount):
-            writer.writerow([fake.name(), fake.random_int(min=18, max=100, step=1), fake.email(), fake.phone_number()])
-
+        list_of_people = generate_people_list(amount)
+        writer.writerows(list_of_people)
         tend = perf_counter()
-        print(f"Time taken: {tend - tstart:.5f}s")
+        if settings.DEBUG:
+            print(f"Time taken: {tend - tstart:.5f}s")
         return response
 
     def get_context_data(self, **kwargs):
@@ -59,24 +61,19 @@ class GenerateRandomPeopleWithPandas(TemplateView):
     def post(self, request, *args, **kwargs):
         tstart = perf_counter()
         amount = int(request.POST.get('amount', 0))
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename={amount}_people.csv'
 
-        fake = Faker()
-        people = []
-
-        for _ in range(amount):
-            people.append(
-                {
-                    'name': fake.name(),
-                    'age': fake.random_int(min=18, max=100, step=1),
-                    'email': fake.email(),
-                    'phone': fake.phone_number(),
-                }
-            )
-
-        df = pd.DataFrame(people)
-        df.to_csv(response, index=False)
+        df = pd.DataFrame(people_generator(amount))
+        filetype = request.POST.get('filetype', 'csv')
+        if filetype == "xls":
+            response = HttpResponse(content_type='application/vnd.ms-excel')
+            response['Content-Disposition'] = f'attachment; filename={amount}_people.xlsx'
+            df.to_excel(response, index=False)
+        else:
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = f'attachment; filename={amount}_people.csv'
+            df.to_csv(response, index=False)
         tend = perf_counter()
-        print(f"Time taken: {tend - tstart:.5f}s")
+        if settings.DEBUG:
+            print(f"Time taken: {tend - tstart:.5f}s")
+
         return response

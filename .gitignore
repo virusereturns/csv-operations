@@ -3,3 +3,5 @@ __pycache__
 .DS_Store
 staticfiles/
 db.sqlite3
+dump.rdb
+csv_files/

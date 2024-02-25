@@ -3,4 +3,5 @@ django-extensions
 django-browser-reload
 pandas
 faker
-django-channels
+celery
+django-redis
