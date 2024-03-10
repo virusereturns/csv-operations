@@ -4,7 +4,7 @@ from time import perf_counter
 from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView
 from django.contrib import messages
 
 import pandas as pd
@@ -77,3 +77,9 @@ class GenerateRandomPeopleWithPandas(TemplateView):
             print(f"Time taken: {tend - tstart:.5f}s")
 
         return response
+
+
+class StoredFilesListView(ListView):
+    model = tasks.StoredFile
+    template_name = 'core/stored_files.html'
+    context_object_name = 'files'

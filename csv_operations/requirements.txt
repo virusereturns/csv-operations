@@ -6,3 +6,5 @@ faker
 celery
 django-redis
 openpyxl
+django-celery-results
+celery-progress

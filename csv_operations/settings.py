@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "core",
     'django_browser_reload',
+    "django_celery_results",
 ]
 
 MIDDLEWARE = [
@@ -138,5 +139,6 @@ STATIC_ROOT = 'staticfiles/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Replace with your Redis connection details
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Replace with your Redis connection details
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True  # Retry connecting to the broker on startup.

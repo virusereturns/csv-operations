@@ -11,6 +11,7 @@ from core.utils import people_generator
 def generate_csv_with_people_using_pandas(amount=10, filetype='csv'):
     tstart = perf_counter()
 
+    sf = StoredFile.objects.create(filetype=filetype)
     df = pd.DataFrame(columns=['name', 'age', 'email', 'phone'], data=people_generator(amount))
 
     if filetype == 'csv':
@@ -22,4 +23,7 @@ def generate_csv_with_people_using_pandas(amount=10, filetype='csv'):
 
     tend = perf_counter()
     time_elapsed = tend - tstart
-    StoredFile.objects.create(file=filepath, time_to_process=time_elapsed, filetype=filetype)
+    sf.status = StoredFile.STATUS.DONE
+    sf.file = filepath
+    sf.time_to_process = time_elapsed
+    sf.save()
